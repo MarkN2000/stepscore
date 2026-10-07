@@ -1,0 +1,4 @@
+format=stepscore,version=1,step_ms=125,title=Example,title_ja=サンプル,title_en=Sample,composer=Sample Composer,composer_ja=作曲者,composer_en=Sample Composer,arranged_for=musicbox30,reading_ja=さんぷる,steps_per_quarter=4,time_signature=4/4
+C5,E5,G5
+
+D5

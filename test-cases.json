@@ -37,5 +37,6 @@
   {"name":"小文字の音名","input":"format=stepscore,version=1,step_ms=125\nc4\n","error":true},
   {"name":"空の音名","input":"format=stepscore,version=1,step_ms=125\nC4,\n","error":true},
   {"name":"コメント","input":"format=stepscore,version=1,step_ms=125\n# コメント\n","error":true},
-  {"name":"本文の設定行","input":"format=stepscore,version=1,step_ms=125\nstep_ms=100\n","error":true}
+  {"name":"本文の設定行","input":"format=stepscore,version=1,step_ms=125\nstep_ms=100\n","error":true},
+  {"name":"任意メタデータの使用例","input":"format=stepscore,version=1,step_ms=125,title=Example,title_ja=サンプル,title_en=Sample,composer=Sample Composer,composer_ja=作曲者,composer_en=Sample Composer,arranged_for=musicbox30,reading_ja=さんぷる,steps_per_quarter=4,time_signature=4/4\nC5,E5,G5\n\nD5\n","expected":{"step_ms":125,"steps":3,"notes":[[0,72],[0,76],[0,79],[2,74]],"metadata":{"format":"stepscore","version":"1","step_ms":"125","title":"Example","title_ja":"サンプル","title_en":"Sample","composer":"Sample Composer","composer_ja":"作曲者","composer_en":"Sample Composer","arranged_for":"musicbox30","reading_ja":"さんぷる","steps_per_quarter":"4","time_signature":"4/4"}}}
 ]

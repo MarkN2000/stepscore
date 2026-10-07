@@ -1,36 +1,57 @@
 # StepScore v1
 
-固定間隔の発音データ。音長・音色・強弱・楽器の音域は再生側で扱う。
+[English](SPEC.md) | [日本語](SPEC.ja.md)
 
-## ヘッダー
+Fixed-interval note-on events. Note duration, timbre, dynamics, and instrument range are handled by the player.
 
-1行目に `key=value` を `,` 区切りで記録する。入力の項目順は任意。出力は `format=stepscore` を先頭に置く。
+## Header
 
-| キー | 必須 | 値 |
-| --- | --- | --- |
-| `format` | ○ | `stepscore` |
-| `version` | ○ | `1` |
-| `step_ms` | ○ | 1〜9007199254740991の十進整数。1ステップの間隔（ms） |
-| `title` | 任意 | 原題を優先した基本名。原題が不明・自作曲なら自由な曲名 |
-| `title_<言語コード>` | 任意 | 言語別の表示名。例：`title_ja`、`title_en` |
+The first line contains comma-separated `key=value` fields. Input field order is arbitrary. Output starts with `format=stepscore`.
 
-- キーは非空・重複禁止。`,`・`=`・CR・LFを含めない。
-- 値は `%` → `%25`、`,` → `%2C` の順でエスケープする。CR・LFは禁止。他の文字は保持し、引用符は解釈しない。
-- 読み込みは `,` で分割 → 最初の `=` でキーと値を分割 → 値の `%25`・`%2C` を1回だけ復元する。`%252C` は `%2C` になる。他の `%` 表記はエラー。
-- 未知のキー・値も再出力時に保持する。発音時刻は `step_ms` と本文で決まり、他のメタデータは演奏に使わない。
-- 再出力の `format`・`version` は本仕様の値、`step_ms` は編集後の間隔とする。表示言語を変えても `title` は変更しない。
-- 言語別の名前は一つの値にまとめない。基本名と同じ表記なら省略できる。表示用メタデータの追加で `version` は変更しない。
+| Required key | Value |
+| --- | --- |
+| `format` | `stepscore` |
+| `version` | `1` |
+| `step_ms` | Decimal integer from 1 to 9007199254740991. Interval per step in milliseconds |
 
-## 本文
+- Keys must be nonempty and unique, and must not contain `,`, `=`, CR, or LF.
+- Escape values by replacing `%` with `%25`, then `,` with `%2C`. CR and LF are forbidden. Preserve other characters; quotation marks have no special meaning.
+- Parse by splitting on `,`, splitting each field at the first `=`, then decoding `%25` and `%2C` once. `%252C` becomes `%2C`. Other `%` sequences are errors.
+- Preserve unknown keys and values when writing. Onset times depend only on `step_ms` and the body; other metadata is not used for playback.
+- When writing, use this specification's `format` and `version` values and the edited interval for `step_ms`. Changing the display language must not change `title`.
 
-- 2行目以降、1行＝1ステップ。音名を `,` 区切りで同時発音する。音名の前後の空白は無視する。
-- 空行は新たな発音を行わない。鳴っている音を止める指定ではない。
-- 音名は `C C# D D# E F F# G G# A A# B` とオクターブ番号。`C4`＝MIDI 60。範囲は `C-1`〜`G9`（MIDI 0〜127）。
-- 同一ステップの同音は統合し、別ステップの同音は再発音する。出力は音高の昇順。
-- 先頭・途中・末尾の休符を保持する。末尾の改行は行終端。本文の `C5\n` は1ステップ、`C5\n\n` は2ステップ（`\n`＝LF）。
+### Optional metadata
 
-## 入出力
+Display metadata does not change onset times or `version`. Store each language's name separately; a name identical to the base name may be omitted.
 
-- 拡張子は `.txt`。出力はUTF-8・BOMなし・LF・各ステップ末尾に改行。入力はUTF-8・BOM任意・LF／CRLF／CR。
-- 必須キーの欠落、キーの重複、不正な値・音名・エスケープ、未対応のバージョンはエラー。
-- コメント、本文中の設定行、旧形式は非対応。
+| Key | Meaning and example |
+| --- | --- |
+| `title` | Base title, preferably the original title; otherwise a freely chosen title. Example: `title=Air` |
+| `title_<language>` | Localized title. Examples: `title_ja=G線上のアリア`, `title_en=Air on the G String` |
+
+Additional metadata used by [musicbox](https://musicbox.markn2000.com); interpreting these fields is optional:
+
+| Key | Meaning and example |
+| --- | --- |
+| `composer` | Base composer name. Example: `composer=Johann Sebastian Bach` |
+| `composer_<language>` | Localized composer name. Examples: `composer_ja=バッハ`, `composer_en=Johann Sebastian Bach` |
+| `arranged_for` | Arrangement target. Examples: `musicbox30`, `piano88`, `piano61`, `xylophone32` |
+| `reading_ja` | Japanese title reading for sorting and search. Example: `reading_ja=じーせんじょうのありあ` |
+| `steps_per_quarter` | Steps per quarter note. Examples: `4`, `8`, `12` |
+| `time_signature` | Time signature. Examples: `4/4`, `3/4`, `6/8` |
+
+See the [metadata example](examples/metadata.txt).
+
+## Body
+
+- Each line after the header is one step. Comma-separated note names sound together. Ignore whitespace around note names.
+- A blank line triggers no new notes. It does not stop notes already sounding.
+- Note names use `C C# D D# E F F# G G# A A# B` followed by an octave number. `C4` = MIDI 60. Range: `C-1` through `G9` (MIDI 0–127).
+- Merge duplicate notes within a step; repeat the note-on in different steps. Write notes in ascending pitch order.
+- Preserve leading, internal, and trailing rests. A final newline terminates the last line. Body `C5\n` is one step; `C5\n\n` is two (`\n` = LF).
+
+## Input and output
+
+- Extension: `.txt`. Output: UTF-8 without BOM, LF, a newline after every step. Input: UTF-8, optional BOM, LF/CRLF/CR.
+- Missing required keys, duplicate keys, invalid values, note names or escapes, and unsupported versions are errors.
+- Comments, settings in the body, and the legacy format are unsupported.

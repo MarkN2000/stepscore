@@ -1,4 +1,4 @@
-format=stepscore,version=1,step_ms=125,title=サンプル
+format=stepscore,version=1,step_ms=125,title=Example
 C5,E5,G5
 
 D5
