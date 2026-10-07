@@ -1,0 +1,4 @@
+format=stepscore,version=1,step_ms=125,title=サンプル
+C5,E5,G5
+
+D5
